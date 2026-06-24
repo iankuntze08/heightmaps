@@ -322,6 +322,91 @@ std::vector<float> getCubeVert()
     return vec;
 }
 
+std::vector<float> getPrismVert(float height)
+{
+    // bottom of the prism is at 0.0
+    std::vector<float> vec = {
+        -1.0f,  height, -1.0f,
+        -1.0f, 0.0f, -1.0f,
+        1.0f, 0.0f, -1.0f,
+        1.0f, 0.0f, -1.0f,
+        1.0f,  height, -1.0f,
+        -1.0f,  height, -1.0f,
+
+        -1.0f, 0.0f,  1.0f,
+        -1.0f, 0.0f, -1.0f,
+        -1.0f,  height, -1.0f,
+        -1.0f,  height, -1.0f,
+        -1.0f,  height,  1.0f,
+        -1.0f, 0.0f,  1.0f,
+
+        1.0f, 0.0f, -1.0f,
+        1.0f, 0.0f,  1.0f,
+        1.0f,  height,  1.0f,
+        1.0f,  height,  1.0f,
+        1.0f,  height, -1.0f,
+        1.0f, 0.0f, -1.0f,
+
+        -1.0f, 0.0f,  1.0f,
+        -1.0f,  height,  1.0f,
+        1.0f,  height,  1.0f,
+        1.0f,  height,  1.0f,
+        1.0f, 0.0f,  1.0f,
+        -1.0f, 0.0f,  1.0f,
+
+        -1.0f,  height, -1.0f,
+        1.0f,  height, -1.0f,
+        1.0f,  height,  1.0f,
+        1.0f,  height,  1.0f,
+        -1.0f,  height,  1.0f,
+        -1.0f,  height, -1.0f,
+
+        -1.0f, 0.0f, -1.0f,
+        -1.0f, 0.0f,  1.0f,
+        1.0f, 0.0f, -1.0f,
+        1.0f, 0.0f, -1.0f,
+        -1.0f, 0.0f,  1.0f,
+        1.0f, 0.0f,  1.0f
+    };
+    return vec;
+}
+
+std::vector<Vertex> getMapVert(int columns, int rows, glm::vec3 color)
+{
+    std::vector<Vertex> vertices;
+    float invCols = 2.0 / columns;
+    float invRows = 2.0 / rows;
+
+    const float height = 0.1;
+    const float phase = 5.0;
+
+    for (float x = -1.0; x < 1.0; x += invCols)
+    {
+        for (float y = -1.0; y < 1.0; y += invRows)
+        {
+            float newX = x + invCols;
+            float newY = y + invRows;
+
+            vertices.push_back({glm::vec3(x, height * sin(phase * x), y), color});
+            vertices.push_back({glm::vec3(x, height * sin(phase * x), newY), color});
+            vertices.push_back({glm::vec3(newX, height * sin(phase * newX), newY), color});
+
+            vertices.push_back({glm::vec3(newX, height * sin(phase * newX), newY), color});
+            vertices.push_back({glm::vec3(x, height * sin(phase * x), y), color});
+            vertices.push_back({glm::vec3(newX, height * sin(phase * newX), y), color});
+        }
+    }
+
+    return vertices;
+}
+
+std::vector<Vertex> multiplyVertices(std::vector<Vertex>& vertices0, float x)
+{
+    for (Vertex& v : vertices0)
+        v.pos *= x;
+    return vertices0;
+}
+
 int main(int argc, char** argv)
 {
     GLFWwindow* window = initWindow();
@@ -350,8 +435,12 @@ int main(int argc, char** argv)
     FPSHandler fpsCounter = FPSHandler();
 
     // create scene objects
-    std::vector<Vertex> cubeVertices = vertToVectors(getCubeVert(), glm::vec3(0.0f, 0.0, 0.5f));
-    Mesh cubeMesh = bufferTriangle(cubeVertices, 0);
+    // std::vector<Vertex> cubeVertices = vertToVectors(getPrismVert(5.0), glm::vec3(0.0f, 0.0, 0.5f));
+    // Mesh cubeMesh = bufferTriangle(cubeVertices, 0);
+    std::vector<Vertex> heightmapVertices = multiplyVertices(getMapVert(24, 24, glm::vec3(1.0, 0.0, 1.0)), 10.0);
+    Mesh mapMesh = bufferTriangle(heightmapVertices, 0);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -365,9 +454,9 @@ int main(int argc, char** argv)
 
         mainShader.use();
 
-        glBindBuffer(GL_ARRAY_BUFFER, cubeMesh.VBO);
-        glBindVertexArray(cubeMesh.VAO);
-        glDrawArrays(GL_TRIANGLES, 0, cubeVertices.size());
+        glBindBuffer(GL_ARRAY_BUFFER, mapMesh.VBO);
+        glBindVertexArray(mapMesh.VAO);
+        glDrawArrays(GL_TRIANGLES, 0, heightmapVertices.size());
 
         camera.doCameraMovement(window);
         camera.updateView(view);
