@@ -377,7 +377,7 @@ std::vector<Vertex> getMapVert(int columns, int rows, glm::vec3 color)
     float invCols = 2.0 / columns;
     float invRows = 2.0 / rows;
 
-    const float height = 0.1;
+    const float height = 0.3;
     const float phase = 5.0;
 
     for (float x = -1.0; x < 1.0; x += invCols)
@@ -437,7 +437,7 @@ int main(int argc, char** argv)
     // create scene objects
     // std::vector<Vertex> cubeVertices = vertToVectors(getPrismVert(5.0), glm::vec3(0.0f, 0.0, 0.5f));
     // Mesh cubeMesh = bufferTriangle(cubeVertices, 0);
-    std::vector<Vertex> heightmapVertices = multiplyVertices(getMapVert(24, 24, glm::vec3(1.0, 0.0, 1.0)), 10.0);
+    std::vector<Vertex> heightmapVertices = multiplyVertices(getMapVert(42, 42, glm::vec3(1.0, 0.0, 1.0)), 10.0);
     Mesh mapMesh = bufferTriangle(heightmapVertices, 0);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
