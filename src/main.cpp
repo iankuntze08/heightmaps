@@ -16,7 +16,9 @@
 #include "Camera3.h"
 #include "..\shaders\ComputeShader.h"
 
-
+#define TAU 6.28318531
+#define PI 3.141592654
+#define E 2.7182818285
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -27,12 +29,6 @@ void processInput(GLFWwindow* window);
 const unsigned int SCR_WIDTH = 600;
 const unsigned int SCR_HEIGHT = 600;
 
-const float TAU = 6.28318531;
-const float PI = 3.141592654;
-const float E = 2.7182818285;
-const float G = 1.0;
-float DT = 0.0001666;
-const float C = 1.0;
 const int numCubeVertices = 108;
 
 float yaw = 0.0;
@@ -437,7 +433,7 @@ int main(int argc, char** argv)
     // create scene objects
     // std::vector<Vertex> cubeVertices = vertToVectors(getPrismVert(5.0), glm::vec3(0.0f, 0.0, 0.5f));
     // Mesh cubeMesh = bufferTriangle(cubeVertices, 0);
-    std::vector<Vertex> heightmapVertices = multiplyVertices(getMapVert(42, 42, glm::vec3(1.0, 0.0, 1.0)), 10.0);
+    std::vector<Vertex> heightmapVertices = multiplyVertices(getMapVert(64, 64, glm::vec3(1.0, 0.0, 1.0)), 10.0);
     Mesh mapMesh = bufferTriangle(heightmapVertices, 0);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -446,8 +442,6 @@ int main(int argc, char** argv)
     {
         fpsCounter.frames += 1;
         fpsCounter.fpsCheck();
-        // if (fpsCounter.startTime > 1.0f)
-        //     DT = lerp(DT, 1.0 / fpsCounter.fps, 0.0001);
 
         glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
