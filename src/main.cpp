@@ -387,13 +387,13 @@ std::vector<Vertex> getMapVert(int columns, int rows, glm::vec3 color)
             float newX = x + invCols;
             float newY = y + invRows;
 
-            vertices.push_back({glm::vec3(x, height * sin(phase * x), y), color});
-            vertices.push_back({glm::vec3(x, height * sin(phase * x), newY), color});
-            vertices.push_back({glm::vec3(newX, height * sin(phase * newX), newY), color});
+            vertices.push_back({glm::vec3(x, height * sin(phase * x * y), y), color});
+            vertices.push_back({glm::vec3(x, height * sin(phase * x * newY), newY), color});
+            vertices.push_back({glm::vec3(newX, height * sin(phase * newX * newY), newY), color});
 
-            vertices.push_back({glm::vec3(newX, height * sin(phase * newX), newY), color});
-            vertices.push_back({glm::vec3(x, height * sin(phase * x), y), color});
-            vertices.push_back({glm::vec3(newX, height * sin(phase * newX), y), color});
+            vertices.push_back({glm::vec3(newX, height * sin(phase * newX * newY), newY), color});
+            vertices.push_back({glm::vec3(x, height * sin(phase * x * y), y), color});
+            vertices.push_back({glm::vec3(newX, height * sin(phase * newX * y), y), color});
         }
     }
 
