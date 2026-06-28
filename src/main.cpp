@@ -15,6 +15,8 @@
 #include "..\shaders\Shader.h"
 #include "Camera3.h"
 #include "..\shaders\ComputeShader.h"
+#include "..\SimplexNoise.h"
+#include "..\SimplexNoise.cpp" // unnecessary?
 
 #define TAU 6.28318531
 #define PI 3.141592654
@@ -367,14 +369,24 @@ std::vector<float> getPrismVert(float height)
     return vec;
 }
 
+std::vector<Vertex> addNoise(std::vector<Vertex>& vertices, int iteration, const float& heightFrac, const float& scale)
+{
+    for (int i = 0; i < vertices.size(); i++)
+    {
+        vertices[i].pos.y += (SimplexNoise::noise(vertices[i].pos.x * scale, vertices[i].pos.z * scale) * heightFrac) / iteration;
+    }
+    return vertices;
+}
+
 std::vector<Vertex> getMapVert(int columns, int rows, glm::vec3 color)
 {
     std::vector<Vertex> vertices;
     float invCols = 2.0 / columns;
     float invRows = 2.0 / rows;
 
-    const float height = 0.3;
-    const float phase = 5.0;
+    const float scale = 5.0;
+    const float heightFrac = 0.01;
+    const float phase = 20.0;
 
     for (float x = -1.0; x < 1.0; x += invCols)
     {
@@ -383,15 +395,22 @@ std::vector<Vertex> getMapVert(int columns, int rows, glm::vec3 color)
             float newX = x + invCols;
             float newY = y + invRows;
 
-            vertices.push_back({glm::vec3(x, height * sin(phase * x * y), y), color});
-            vertices.push_back({glm::vec3(x, height * sin(phase * x * newY), newY), color});
-            vertices.push_back({glm::vec3(newX, height * sin(phase * newX * newY), newY), color});
+            vertices.push_back({glm::vec3(x, 0.0, y), color});
+            vertices.push_back({glm::vec3(x, 0.0, newY), color});
+            vertices.push_back({glm::vec3(newX, 0.0, newY), color});
 
-            vertices.push_back({glm::vec3(newX, height * sin(phase * newX * newY), newY), color});
-            vertices.push_back({glm::vec3(x, height * sin(phase * x * y), y), color});
-            vertices.push_back({glm::vec3(newX, height * sin(phase * newX * y), y), color});
+            vertices.push_back({glm::vec3(newX, 0.0, newY), color});
+            vertices.push_back({glm::vec3(x, 0.0, y), color});
+            vertices.push_back({glm::vec3(newX, 0.0, y), color});
+
+
         }
     }
+
+
+    addNoise(vertices, 1, heightFrac, scale);
+    addNoise(vertices, 2, heightFrac, scale);
+    addNoise(vertices, 3, heightFrac, scale);
 
     return vertices;
 }
@@ -433,7 +452,7 @@ int main(int argc, char** argv)
     // create scene objects
     // std::vector<Vertex> cubeVertices = vertToVectors(getPrismVert(5.0), glm::vec3(0.0f, 0.0, 0.5f));
     // Mesh cubeMesh = bufferTriangle(cubeVertices, 0);
-    std::vector<Vertex> heightmapVertices = multiplyVertices(getMapVert(64, 64, glm::vec3(1.0, 0.0, 1.0)), 10.0);
+    std::vector<Vertex> heightmapVertices = multiplyVertices(getMapVert(128, 128, glm::vec3(1.0, 0.0, 1.0)), 10.0);
     Mesh mapMesh = bufferTriangle(heightmapVertices, 0);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -460,7 +479,7 @@ int main(int argc, char** argv)
             mainShader, model, view, proj, 
             modelLoc, viewLoc, projLoc
         );
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f + (fpsCounter.frames / 500.0)));
+        // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f + (fpsCounter.frames / 500.0)));
 
         glfwSwapBuffers(window);
         glfwPollEvents();
