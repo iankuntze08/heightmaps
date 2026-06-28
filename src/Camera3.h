@@ -16,6 +16,8 @@ class Camera3D
         float speed;
         glm::vec3 cameraFront;
         glm::vec3 cameraUp;
+        bool wireframe;
+        int wireframeTimer;
 
         Camera3D(glm::vec3 camPos, float camSpeed)
         {
@@ -28,6 +30,8 @@ class Camera3D
             glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
             this->cameraUp = glm::cross(cameraDirection, cameraRight);
             this->cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+            this->wireframe = false;
+            this->wireframeTimer = 0;
         }
         glm::mat4 updateView(glm::mat4& viewMatrix)
         {
@@ -36,6 +40,7 @@ class Camera3D
         }
         void doCameraMovement(GLFWwindow *window)
         {
+            wireframeTimer += 1;
             if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
                 glfwSetWindowShouldClose(window, 1);
             if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
@@ -50,6 +55,20 @@ class Camera3D
                 cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * speed;
             if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
                 cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * speed;
+            if (wireframeTimer < 500)
+                return;
+            if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && wireframe == false)
+            {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                wireframe = true;
+                wireframeTimer = 0;
+            }
+            else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && wireframe == true)
+            {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                wireframe = false;
+                wireframeTimer = 0;
+            }
         }
         void setCameraFront(glm::vec3 vec)
         {
