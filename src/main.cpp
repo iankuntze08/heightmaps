@@ -395,9 +395,9 @@ std::vector<Vertex> getMapVert(int columns, int rows, glm::vec3 color, int noise
     float invCols = 2.0 / columns;
     float invRows = 2.0 / rows;
 
-    const float scale = 0.5;
-    const float heightFrac = 1.0;
-    const int maxIterations = 24;
+    const float scale = 2.0;
+    const float heightFrac = 0.25;
+    const int maxIterations = 32;
 
     for (float x = -1.0; x < 1.0; x += invCols)
     {
@@ -413,14 +413,12 @@ std::vector<Vertex> getMapVert(int columns, int rows, glm::vec3 color, int noise
             vertices.push_back({glm::vec3(newX, 0.0, newY), color});
             vertices.push_back({glm::vec3(x, 0.0, y), color});
             vertices.push_back({glm::vec3(newX, 0.0, y), color});
-
-
         }
     }
 
     for (int i = 0; i < vertices.size(); i++)
     {
-        // float noiseResult = sumOctavesNoise(6, vertices[i].pos.x, vertices[i].pos.z, 0.5, scale, 1, 0);
+        // float noiseResult = sumOctavesNoise(maxIterations, vertices[i].pos.x, vertices[i].pos.z, 0.5, scale, 1, 0);
         float noiseResult = ((noiser.fractal(maxIterations, vertices[i].pos.x * scale, vertices[i].pos.z * scale) + 1.0) / 2.0) * heightFrac;
 
         vertices[i].pos.y += noiseResult;
@@ -464,8 +462,9 @@ int main(int argc, char** argv)
     // setup FPS tracking
     FPSHandler fpsCounter = FPSHandler();
 
-    std::vector<Vertex> heightmapVertices = multiplyVertices(getMapVert(128, 128, glm::vec3(0.0), 10), 10.0);
+    std::vector<Vertex> heightmapVertices = multiplyVertices(getMapVert(256, 256, glm::vec3(0.0), 10), 10.0);
     Mesh mapMesh = bufferTriangle(heightmapVertices, 0);
+    std::cout << "Vertex count: " << mapMesh.vertexCount << std::endl;
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
